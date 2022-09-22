@@ -82,8 +82,13 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
         // Envío la notificación si se marca el checkbox
         chkSuscripcion.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
            @Override
-           public void onCheckedChanged(CompoundButton buttonView,boolean isChecked) {
-               notificationManagerCompat.notify(1, notificacion);
+           public void onCheckedChanged(CompoundButton buttonView,boolean a) {
+               if(chkSuscripcion.isChecked()){
+                   notificationManagerCompat.notify(1, notificacion);
+               }else{
+
+               }
+
            }
         }
         );
