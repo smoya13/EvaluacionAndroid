@@ -42,6 +42,7 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
+
         // Notificación Push
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             NotificationChannel channel = new NotificationChannel("miCh", "Mi Channel", NotificationManager.IMPORTANCE_DEFAULT);
