@@ -164,6 +164,14 @@
                 android:textColor="@color/purple_700"
                 android:textStyle="bold"
                 android:onClick="onRadioButtonClicked"/>
+
+            <ImageButton
+                android:id="@+id/btnHelp"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_gravity="center"
+                android:onClick="onHelpClicked"
+                app:srcCompat="@drawable/question" />
         </RadioGroup>
 
     </LinearLayout>

@@ -25,37 +25,32 @@ public class MainActivity extends AppCompatActivity {
     // Creo la lista
     ArrayList<ServicioVo> listaServicios;
     RecyclerView recyclerServicios;
+
+    // Comienzo a
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
 
         listaServicios = new ArrayList<>();
         recyclerServicios = (RecyclerView) findViewById(R.id.rvLista);
         recyclerServicios.setLayoutManager(new LinearLayoutManager(this));
 
         // Enviando al siguiente activity para el tutorial - REVISA SI LA APLICACIÓN ESTÁ ABIERTA POR PRIMERA VEZ
-
-        Boolean isFirstRun = getSharedPreferences("PREFERENCE", MODE_PRIVATE)
-                .getBoolean("isFirstRun", true);
+        Boolean isFirstRun = getSharedPreferences("PREFERENCE", MODE_PRIVATE).getBoolean("isFirstRun", true);
 
         if (isFirstRun) {
-            //show start activity
-
+            // Muestra el Activity de inicio.
             startActivity(new Intent(MainActivity.this, TutorialActivity.class));
-            Toast.makeText(MainActivity.this, "First Run", Toast.LENGTH_LONG)
-                    .show();
         }
+        getSharedPreferences("PREFERENCE", MODE_PRIVATE).edit().putBoolean("isFirstRun", false).commit();
 
-
-        getSharedPreferences("PREFERENCE", MODE_PRIVATE).edit()
-                .putBoolean("isFirstRun", false).commit();
-
+        // Comienzo a llenar el RecyclerView
         llenarPersonajes(); // Metodo para alimentar nuestra lista
-
         AdaptadorServicios adaptador = new AdaptadorServicios(listaServicios);
         recyclerServicios.setAdapter(adaptador);
+
+
 
     }
 
@@ -70,4 +65,5 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-}
+
+    }

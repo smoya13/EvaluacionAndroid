@@ -2,11 +2,14 @@ package evaluacion.smoya.evaluacionandroid;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -26,6 +29,7 @@ public class LoginActivity extends AppCompatActivity {
     EditText txtPass;
     ProgressBar progressBar;
     Handler handler = new Handler();
+    String user, pass;
     int progreso = 0;
 
 
@@ -39,6 +43,7 @@ public class LoginActivity extends AppCompatActivity {
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
         // Asigno los valores a botones
         btnLogin = findViewById(R.id.btnLogin);
         txtUsuario = findViewById(R.id.txtUsuario);
@@ -67,30 +72,46 @@ public class LoginActivity extends AppCompatActivity {
             }
         }).start();
 
-
     }
 
     public void btnLoginClick(View view) {
-        if(txtUsuario.getText().toString().equals("") | txtPass.getText().toString().equals("")){
-            Toast msjError = Toast.makeText(LoginActivity.this, "⚠No dejes campos vacíos porfavor.", Toast.LENGTH_LONG);
-            msjError.show();
-        }else if(txtUsuario.getText().toString().equals("admin") && txtPass.getText().toString().equals("123")){
-            progressBar.setVisibility(View.VISIBLE);
-            if(progreso == 100){
-                Intent intent = new Intent (this, MainActivity.class);
-                startActivity(intent);
-                progressBar.setVisibility(View.GONE);
+        try {
+            // Llamo a los datos tomados en el registro
+            Bundle datos = LoginActivity.this.getIntent().getExtras();
+            user = datos.getString("username");
+            pass = datos.getString("pass");
+            if(user == null | pass == null){
+                user = "";
+                pass = "";
             }
-
+            if(txtUsuario.getText().toString().equals("") | txtPass.getText().toString().equals("")){
+                Toast msjError = Toast.makeText(LoginActivity.this, "⚠No dejes campos vacíos porfavor.", Toast.LENGTH_LONG);
+                msjError.show();
+            }
+            else if(txtUsuario.getText().toString().equals(user) && txtPass.getText().toString().equals(pass)){
+                progressBar.setVisibility(View.VISIBLE);
+                if(progreso == 100){
+                    Intent intent = new Intent (this, MainActivity.class);
+                    startActivity(intent);
+                    progressBar.setVisibility(View.GONE);
+                }
+            }
+            else{
+                Toast msjError = Toast.makeText(LoginActivity.this, "⚠No te encuentras en el sistema, registrate porfavor." + user, Toast.LENGTH_LONG);
+                msjError.show();
+            }
+        } catch (Exception e) {
+            Toast errorVacio = Toast.makeText(LoginActivity.this, "⚠Debes registrarte primero.", Toast.LENGTH_LONG);
+            errorVacio.show();
         }
 
+
     }
-
-
-
 
     public void btnRegisterClick(View view) {
         Intent intent = new Intent (this, RegisterActivity.class);
         startActivity(intent);
     }
+
+
 }
