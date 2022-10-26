@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">🚀EnyerFame</string>
     <string name="tutorial">Al ser tu primera vez en la aplicación, cabe recalcar que en esta pestaña deberían estar los servicios a contratar, junto a su rating..</string>
+    <string name="mapbox_access_token">sk.eyJ1IjoidHJ1emtpdGEiLCJhIjoiY2w5cDdiN3VhMDRoazNvb2F3czJicmViZSJ9.PS1RZcQ4wfqP1EFB_GTtnA</string>
 </resources>
