@@ -55,15 +55,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void llenarPersonajes() {
-        listaServicios.add(new ServicioVo("👪500 Seguidores","💸$2.990", R.drawable.followers, 2));
-        listaServicios.add(new ServicioVo("👪1000 Seguidores","💸$4.990", R.drawable.followers, 2));
-        listaServicios.add(new ServicioVo("💕500 Likes","💸$1.990", R.drawable.likes, 4));
-        listaServicios.add(new ServicioVo("💕1000 Likes","💸$2.990", R.drawable.likes, 5));
-        listaServicios.add(new ServicioVo("👀1000 Visitas","💸$990", R.drawable.views, 2));
-        listaServicios.add(new ServicioVo("👀2000 Visitas","💸$1.990", R.drawable.views, 1));
+        listaServicios.add(new ServicioVo("👪Servicio Followers Uno","💸$-", R.drawable.followers, 2));
+        listaServicios.add(new ServicioVo("👪Servicio Followers Dos","💸$-", R.drawable.followers, 2));
+        listaServicios.add(new ServicioVo("💕Servicio Likes Uno","💸$-", R.drawable.likes, 4));
+        listaServicios.add(new ServicioVo("💕Servicio Likes Dos","💸$-", R.drawable.likes, 5));
+        listaServicios.add(new ServicioVo("👀Servicio Visitas Uno","💸$-", R.drawable.views, 2));
+        listaServicios.add(new ServicioVo("👀Servicio Visitas Dos","💸$-", R.drawable.views, 1));
 
 
     }
-
-
-    }
+}

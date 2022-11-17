@@ -1,6 +1,7 @@
 package evaluacion.smoya.evaluacionandroid;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.room.Room;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import kotlinx.coroutines.Delay;
 
@@ -51,35 +53,25 @@ public class LoginActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         progressBar.setVisibility(View.GONE);
 
-        // Comienzo a cargar
-        new Thread(new Runnable() {
-            public void run() {
-                while (progreso < 100) {
-                    progreso += 4;
-                    // Actualizo la barra de progreso
-                    handler.post(new Runnable() {
-                        public void run() {
-                            progressBar.setProgress(progreso);
-                        }
-                    });
-                    try {
-                        // Espero 200 milisegundos.
-                        Thread.sleep(200);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }).start();
+        Toast msjAdvertencia = Toast.makeText(LoginActivity.this, "⚠Recuerda que esta aplicación es meramente un trabajo de la universidad.", Toast.LENGTH_LONG);
+        msjAdvertencia.show();
+
 
     }
 
     public void btnLoginClick(View view) {
         try {
-            // Llamo a los datos tomados en el registro
+            // Llamo a la base de datos
+            BDApp bdApp = Room.databaseBuilder(getApplicationContext(), BDApp.class, "bdUsuario").allowMainThreadQueries().build();
+
+            // Asigno los valores de la base de datos a las variables ya creadas
             Bundle datos = LoginActivity.this.getIntent().getExtras();
-            user = datos.getString("username");
-            pass = datos.getString("pass");
+            int contador = datos.getInt("contador");
+            List<Usuario> listaUsuarios;
+            listaUsuarios = bdApp.daoUsuario().obtenerUsuarios();
+            user = listaUsuarios.get(contador).user;
+            pass = listaUsuarios.get(contador).pass;
+
             if(user == null | pass == null){
                 user = "";
                 pass = "";
@@ -89,6 +81,26 @@ public class LoginActivity extends AppCompatActivity {
                 msjError.show();
             }
             else if(txtUsuario.getText().toString().equals(user) && txtPass.getText().toString().equals(pass)){
+                // Comienzo a cargar
+                new Thread(new Runnable() {
+                    public void run() {
+                        while (progreso < 100) {
+                            progreso += 4;
+                            // Actualizo la barra de progreso
+                            handler.post(new Runnable() {
+                                public void run() {
+                                    progressBar.setProgress(progreso);
+                                }
+                            });
+                            try {
+                                // Espero 200 milisegundos.
+                                Thread.sleep(200);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }).start();
                 progressBar.setVisibility(View.VISIBLE);
                 if(progreso == 100){
                     Intent intent = new Intent (this, MainActivity.class);
@@ -101,7 +113,7 @@ public class LoginActivity extends AppCompatActivity {
                 msjError.show();
             }
         } catch (Exception e) {
-            Toast errorVacio = Toast.makeText(LoginActivity.this, "⚠Debes registrarte primero.", Toast.LENGTH_LONG);
+            Toast errorVacio = Toast.makeText(LoginActivity.this, "⚠"+e, Toast.LENGTH_LONG);
             errorVacio.show();
         }
 
@@ -114,4 +126,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
+    public void btnTextoClick(View view) {
+        Intent intent = new Intent(this, CrudActivity.class);
+        startActivity(intent);
+    }
 }

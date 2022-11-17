@@ -5,6 +5,7 @@ import static android.content.ContentValues.TAG;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.room.Room;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -33,11 +34,15 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class RegisterActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     // Creo el arreglo para poner los generos
     String[] genero = {"Hombre", "Mujer", "Otro"};
+
+    // Creo la variable generoSeleccionado para llevarla a la base de datos
+    String generoSeleccionado;
 
     // Variables de instancia
     private EditText txtUsuario, txtPass;
@@ -88,12 +93,29 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
         Spinner spin = (Spinner) findViewById(R.id.spnGnero);
         spin.setOnItemSelectedListener(this);
 
-        // Creando una instancia del ArrayAdapter obteniendo la lista de paises.
+        // Creando una instancia del ArrayAdapter obteniendo la lista de genero.
         ArrayAdapter aa = new ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, genero);
         aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         // Setteando el ArrayAdapter al Spinner
         spin.setAdapter(aa);
+        switch (aa.getPosition(spin)){
+            case 0:
+                generoSeleccionado = "Hombre";
+                Toast toast = Toast.makeText(RegisterActivity.this, generoSeleccionado, Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.START, 90, 0);
+                toast.show();
+            case 1:
+                generoSeleccionado = "Mujer";
+                Toast ea = Toast.makeText(RegisterActivity.this, generoSeleccionado, Toast.LENGTH_SHORT);
+                ea.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.START, 90, 0);
+                ea.show();
+            case 2:
+                generoSeleccionado = "Otro";
+                Toast ae = Toast.makeText(RegisterActivity.this, generoSeleccionado, Toast.LENGTH_SHORT);
+                ae.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.START, 90, 0);
+                ae.show();
+        }
 
         // Envío la notificación si se marca el checkbox
         chkSuscripcion.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -111,10 +133,12 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
 
         // Usamos el sensor de proximidad
         proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+
         if(proximitySensor == null) {
             Log.e("TAG", "El sensor de proximidad no está disponible.");
             finish();
         }
+
         proximitySensorListener = new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent sensorEvent) {
@@ -123,6 +147,7 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
                     Toast toast = Toast.makeText(RegisterActivity.this, mensaje, Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.START, 90, 0);
                     toast.show();
+
                 }
             }
 
@@ -153,8 +178,14 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
             toast.show();
         }else{
             Intent intent = new Intent (this, LoginActivity.class);
-            intent.putExtra("username", txtUsuario.getText().toString());
-            intent.putExtra("pass", txtPass.getText().toString());
+
+            // Creo la lista y llamo a la base de datos
+            BDApp bdApp = Room.databaseBuilder(getApplicationContext(), BDApp.class, "bdUsuario").allowMainThreadQueries().build();
+
+            // Insertando usuario y uid
+            int contador = bdApp.daoUsuario().obtenerUsuarios().size();
+            bdApp.daoUsuario().insertarUsuario(new Usuario(contador,txtUsuario.getText().toString(), txtPass.getText().toString(), generoSeleccionado));
+            intent.putExtra("contador", contador);
             startActivity(intent);
         }
 
@@ -183,7 +214,7 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
             case R.id.rbOpcionUno:
                 if (marcado == true)
 
-                break;
+                    break;
             case R.id.rbOpcionDos:
                 if (marcado == true)
                     abrirDialog();

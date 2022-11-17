@@ -28,7 +28,9 @@
             android:textAllCaps="true"
             android:textColor="@color/purple_700"
             android:textSize="28dp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:clickable="true"
+            android:onClick="btnTextoClick"/>
 
         <TableLayout
             android:layout_width="wrap_content"

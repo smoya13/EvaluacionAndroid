@@ -83,6 +83,17 @@
             </LinearLayout>
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/txtMapa"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            android:textColor="@color/purple_700"
+            android:textAllCaps="true"
+            android:textSize="15dp"
+            android:text="Recuerda que puedes buscar seguidores a través de tu ubicación" />
+
         <com.mapbox.maps.MapView xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:tools="http://schemas.android.com/tools"
             xmlns:mapbox="http://schemas.android.com/apk/res-auto"
@@ -90,8 +101,9 @@
             android:layout_width="252dp"
             android:layout_gravity="center"
             android:layout_height="252dp"
-            mapbox:mapbox_cameraTargetLat="40.7128"
-            mapbox:mapbox_cameraTargetLng="-74.0060"
+            android:fadingEdge="vertical"
+            mapbox:mapbox_cameraTargetLat="32.55"
+            mapbox:mapbox_cameraTargetLng="69.47"
             mapbox:mapbox_cameraZoom="9.0"
             />
 
