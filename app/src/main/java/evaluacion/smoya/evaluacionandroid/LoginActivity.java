@@ -1,5 +1,6 @@
 package evaluacion.smoya.evaluacionandroid;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.room.Room;
 
@@ -10,6 +11,7 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -19,6 +21,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,12 +35,17 @@ import kotlinx.coroutines.Delay;
 public class LoginActivity extends AppCompatActivity {
     // Variables de instancia
     Button btnLogin;
+    TextView txtLogin;
     EditText txtUsuario;
     EditText txtPass;
     ProgressBar progressBar;
     Handler handler = new Handler();
+
     String user, pass;
+    String userID;
+
     int progreso = 0;
+    FirebaseAuth mAuth;
 
 
     @Override
@@ -45,8 +58,10 @@ public class LoginActivity extends AppCompatActivity {
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        mAuth = FirebaseAuth.getInstance();
 
         // Asigno los valores a botones
+        txtLogin = findViewById(R.id.textView);
         btnLogin = findViewById(R.id.btnLogin);
         txtUsuario = findViewById(R.id.txtUsuario);
         txtPass = findViewById(R.id.txtPass);
@@ -60,64 +75,14 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void btnLoginClick(View view) {
-        try {
-            // Llamo a la base de datos
-            BDApp bdApp = Room.databaseBuilder(getApplicationContext(), BDApp.class, "bdUsuario").allowMainThreadQueries().build();
+        String user = txtUsuario.getText().toString();
+        String pass = txtPass.getText().toString();
 
-            // Asigno los valores de la base de datos a las variables ya creadas
-            Bundle datos = LoginActivity.this.getIntent().getExtras();
-            int contador = datos.getInt("contador");
-            List<Usuario> listaUsuarios;
-            listaUsuarios = bdApp.daoUsuario().obtenerUsuarios();
-            user = listaUsuarios.get(contador).user;
-            pass = listaUsuarios.get(contador).pass;
-
-            if(user == null | pass == null){
-                user = "";
-                pass = "";
-            }
-            if(txtUsuario.getText().toString().equals("") | txtPass.getText().toString().equals("")){
-                Toast msjError = Toast.makeText(LoginActivity.this, "⚠No dejes campos vacíos porfavor.", Toast.LENGTH_LONG);
-                msjError.show();
-            }
-            else if(txtUsuario.getText().toString().equals(user) && txtPass.getText().toString().equals(pass)){
-                // Comienzo a cargar
-                new Thread(new Runnable() {
-                    public void run() {
-                        while (progreso < 100) {
-                            progreso += 4;
-                            // Actualizo la barra de progreso
-                            handler.post(new Runnable() {
-                                public void run() {
-                                    progressBar.setProgress(progreso);
-                                }
-                            });
-                            try {
-                                // Espero 200 milisegundos.
-                                Thread.sleep(200);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                }).start();
-                progressBar.setVisibility(View.VISIBLE);
-                if(progreso == 100){
-                    Intent intent = new Intent (this, MainActivity.class);
-                    startActivity(intent);
-                    progressBar.setVisibility(View.GONE);
-                }
-            }
-            else{
-                Toast msjError = Toast.makeText(LoginActivity.this, "⚠No te encuentras en el sistema, registrate porfavor." + user, Toast.LENGTH_LONG);
-                msjError.show();
-            }
-        } catch (Exception e) {
-            Toast errorVacio = Toast.makeText(LoginActivity.this, "⚠"+e, Toast.LENGTH_LONG);
-            errorVacio.show();
+        if(user.isEmpty() && pass.isEmpty()){
+            Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
+        }else{
+            loginUser();
         }
-
-
     }
 
     public void btnRegisterClick(View view) {
@@ -129,5 +94,30 @@ public class LoginActivity extends AppCompatActivity {
     public void btnTextoClick(View view) {
         Intent intent = new Intent(this, CrudActivity.class);
         startActivity(intent);
+    }
+
+    public void loginUser(){
+       String mail = txtUsuario.getText().toString();
+       String pass = txtPass.getText().toString();
+
+       if(TextUtils.isEmpty(mail)){
+           txtUsuario.setError("Ingrese un correo");
+           txtUsuario.requestFocus();
+       }else if(TextUtils.isEmpty(pass)){
+           txtPass.setError("Ingrese una contraseña");
+           txtPass.requestFocus();
+       }else{
+           mAuth.signInWithEmailAndPassword(mail,pass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+               @Override
+               public void onComplete(@NonNull Task<AuthResult> task) {
+                   if(task.isSuccessful()){
+                       Toast.makeText(LoginActivity.this,"Bienvenid@",Toast.LENGTH_SHORT).show();
+                       startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                   }else{
+                       Log.w("TAG", "Error:",task.getException());
+                   }
+               }
+           });
+       }
     }
 }

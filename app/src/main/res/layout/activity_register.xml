@@ -43,7 +43,7 @@
                     android:id="@+id/lblUsuario"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="📌Usuario:"
+                    android:text="📌Correo:"
                     android:textColor="@color/purple_700"
                     android:textSize="19dp"
                     android:textStyle="bold" />
@@ -53,8 +53,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ems="10"
-                    android:hint="admin"
-                    android:inputType="textPersonName"
+                    android:hint="admin@mail.com"
+                    android:inputType="textEmailAddress"
                     android:maxLength="14"
                     android:textColor="@color/purple_700"
                     android:textSize="19dp" />

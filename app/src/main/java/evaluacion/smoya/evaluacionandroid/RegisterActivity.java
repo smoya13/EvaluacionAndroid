@@ -2,6 +2,7 @@ package evaluacion.smoya.evaluacionandroid;
 
 import static android.content.ContentValues.TAG;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -19,6 +20,7 @@ import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -33,8 +35,19 @@ import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RegisterActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
@@ -55,12 +68,17 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
     private SensorManager sensorManager;
     private Sensor proximitySensor;
     private SensorEventListener proximitySensorListener;
+    FirebaseFirestore mFirestore;
+    FirebaseAuth mAuth;
+    String user, pass;
+    String userID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-
+        mFirestore = FirebaseFirestore.getInstance();
+        mAuth = FirebaseAuth.getInstance();
 
         // Notificación Push
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
@@ -171,24 +189,60 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
     }
 
     public void onButtonClicked(View view) {
-        if(txtUsuario.getText().toString().equals("") | txtPass.getText().toString().equals("") | chkSuscripcion.isChecked() == false){
+        if(txtUsuario.getText().toString().equals("") | txtPass.getText().toString().equals("") | !chkSuscripcion.isChecked())
+        {
             String mensaje = "⚠Tienes campos vacios";
             Toast toast = Toast.makeText(this, mensaje, Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.START, 90, 0);
             toast.show();
-        }else{
-            Intent intent = new Intent (this, LoginActivity.class);
+        }
+        else
+        {
+            try{
+                registrarUsuario();
+                Intent intent = new Intent(this, LoginActivity.class);
+                startActivity(intent);
+            }catch (Exception e){
+                Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show();
+            }
 
-            // Creo la lista y llamo a la base de datos
-            BDApp bdApp = Room.databaseBuilder(getApplicationContext(), BDApp.class, "bdUsuario").allowMainThreadQueries().build();
-
-            // Insertando usuario y uid
-            int contador = bdApp.daoUsuario().obtenerUsuarios().size();
-            bdApp.daoUsuario().insertarUsuario(new Usuario(contador,txtUsuario.getText().toString(), txtPass.getText().toString(), generoSeleccionado));
-            intent.putExtra("contador", contador);
-            startActivity(intent);
         }
 
+    }
+
+    public void registrarUsuario() {
+        String mail = txtUsuario.getText().toString();
+        String pass = txtPass.getText().toString();
+        if(TextUtils.isEmpty(mail)){
+            txtUsuario.setError("Ingrese un correo");
+            txtUsuario.requestFocus();
+        }else if(TextUtils.isEmpty(pass)){
+            txtPass.setError("Ingrese una contraseña");
+            txtPass.requestFocus();
+        }else{
+            mAuth.createUserWithEmailAndPassword(mail,pass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    if(task.isSuccessful()){
+                        userID = mAuth.getCurrentUser().getUid();
+                        DocumentReference dr = mFirestore.collection("usuarios").document(userID);
+
+                        Map<String, Object> user = new HashMap<>();
+                        user.put("Correo", mail);
+                        user.put("Contraseña", pass);
+
+                        dr.set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                Log.d("TAG", "onSuccess: Datos registrados"+ userID);
+                            }
+                        });
+                    }else{
+                        Toast.makeText(RegisterActivity.this, "Usuario no encontrado:"+task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
     }
 
 
@@ -241,4 +295,7 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
             startActivity(intent);
         }
     }
+
+
+
 }
